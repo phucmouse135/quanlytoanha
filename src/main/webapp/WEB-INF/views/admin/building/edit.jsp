@@ -206,8 +206,11 @@
                                     <div class="form-group row">
                                         <label for="managerName" class="col-sm-2 col-form-label">Tên quản lí</label>
                                         <div class="col-sm-10">
-                                            <form:input type="text" class="form-control" id="managerName"
-                                                        name="managerName" path="managerName"/>
+                                            <form:select name="managerName" id="managerName" class="form-control"
+                                                         path="managerName">
+                                                <form:option value="">Chọn quản lý</form:option>
+                                                <form:options items="${listStaffs}"/>
+                                            </form:select>
                                         </div>
                                     </div>
                                     <div class="form-group row">

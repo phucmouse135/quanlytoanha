@@ -62,6 +62,7 @@ public class BuildingController {
         mav.addObject("buildingEdit", buildingDTO);
         mav.addObject("listDistrict", districtCode.type());
         mav.addObject("listBuildingTypes", buildingType.type());
+        mav.addObject("listStaffs", userService.getStaffs());
         return mav;
     }
 }

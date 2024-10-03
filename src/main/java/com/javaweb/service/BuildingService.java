@@ -16,8 +16,6 @@ public interface BuildingService {
 
     BuildingDTO findById(Long id);
 
-    void delete(Long id);
-
     void delete(List<Long> ids);
 
     List<StaffResponseDTO> getStaffs(Long id);

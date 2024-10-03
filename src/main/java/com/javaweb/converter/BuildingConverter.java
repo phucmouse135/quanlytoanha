@@ -17,6 +17,9 @@ public class BuildingConverter {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private RentAreaConverter rentAreaConverter;
+
     public BuildingDTO toBuildingDTO(BuildingEntity buildingEntity) {
         BuildingDTO buildingDTO = modelMapper.map(buildingEntity, BuildingDTO.class);
         buildingDTO.setAddress(buildingEntity.getStreet() + ", " + buildingEntity.getWard() + ", " + buildingEntity.getDistrict());
@@ -41,6 +44,7 @@ public class BuildingConverter {
         if (buildingDTO.getTypeCodes() != null) {
             buildingEntity.setType(String.join(",", buildingDTO.getTypeCodes()));
         }
+        buildingEntity.setRentAreas(rentAreaConverter.toRentAreaEntities(buildingDTO, buildingEntity));
         buildingEntity.setDistrict(buildingDTO.getDistrict());
         return buildingEntity;
     }

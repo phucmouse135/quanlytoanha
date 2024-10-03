@@ -60,7 +60,6 @@ public class BuildingServiceImpl implements BuildingService {
         }
         return buildingDTOs;
     }
-
     @Override
     public List<BuildingSearchResponse> findAll(BuildingSearchBuilder buildingSearchBuilder) {
         List<BuildingEntity> buildingEntities = buildingRepository.findAlls(buildingSearchBuilder);
@@ -82,7 +81,6 @@ public class BuildingServiceImpl implements BuildingService {
         }
         return buildingSearchResponses;
     }
-
     @Override
     public BuildingDTO findById(Long id) {
         BuildingEntity buildingEntity = buildingRepository.findById(id).orElse(null);
@@ -93,16 +91,9 @@ public class BuildingServiceImpl implements BuildingService {
     }
 
     @Override
-    public void delete(Long id) {
-        buildingRepository.deleteById(id);
-        rentAreaSevice.deleteByBuildingId(id);
-    }
-
-    @Override
     public void delete(List<Long> ids) {
         ids.forEach(id -> {
             buildingRepository.deleteById(id);
-            rentAreaSevice.deleteByBuildingId(id);
         });
     }
 
@@ -148,18 +139,13 @@ public class BuildingServiceImpl implements BuildingService {
     @Override
     public BuildingDTO addOrUpdate(BuildingDTO buildingDTO) {
         Long id = buildingDTO.getId();
-        BuildingEntity buildingEntity = modelMapper.map(buildingDTO, BuildingEntity.class);
-        buildingEntity.setType(removeAccent(buildingDTO.getTypeCodes()));
-        if(id != null){
-            BuildingEntity foundBuilding = buildingRepository.findById(id).orElse(null);
-            assert foundBuilding != null;
-            buildingEntity.setAvatar(foundBuilding.getAvatar());
+        BuildingEntity buildingEntity = new BuildingEntity();
+        if (id != null) {
+            buildingEntity = buildingRepository.findById(id).orElse(null);
         }
-        saveThumbnail(buildingDTO, buildingEntity);
+        buildingEntity = buildingConverter.toBuildingEntity(buildingDTO);
+        buildingEntity.setAvatar(buildingDTO.getAvatar());
         buildingRepository.save(buildingEntity);
-        if(StringUtils.check(buildingDTO.getRentArea())) {
-            rentAreaSevice.addRentArea(buildingDTO);
-        }
         return buildingDTO;
     }
 

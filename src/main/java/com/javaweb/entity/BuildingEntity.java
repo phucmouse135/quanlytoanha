@@ -111,9 +111,8 @@ public class BuildingEntity {
     @Column(name = "managerphone")
     private String managerPhone;
 
-    @OneToMany(mappedBy = "buildingEntity", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "buildingEntity", fetch = FetchType.LAZY , cascade = CascadeType.ALL)
     private List<RentAreaEntity> rentArea = new ArrayList<>();
-
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "assignmentbuilding",
             joinColumns = @JoinColumn(name = "buildingid", nullable = false),
