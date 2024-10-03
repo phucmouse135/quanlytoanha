@@ -101,17 +101,9 @@ public class BuildingServiceImpl implements BuildingService {
     @Override
     public void delete(List<Long> ids) {
         ids.forEach(id -> {
-            rentAreaSevice.deleteByBuildingId(id);
             buildingRepository.deleteById(id);
+            rentAreaSevice.deleteByBuildingId(id);
         });
-    }
-
-    @Override
-    public void save(BuildingDTO buildingDTO) {
-        BuildingEntity buildingEntity = buildingConverter.toBuildingEntity(buildingDTO);
-        rentAreaSevice.deleteByIds(Collections.singletonList(buildingDTO.getId()));
-        rentAreaSevice.addRentArea(buildingDTO);
-        buildingRepository.save(buildingEntity);
     }
 
 
@@ -160,6 +152,7 @@ public class BuildingServiceImpl implements BuildingService {
         buildingEntity.setType(removeAccent(buildingDTO.getTypeCodes()));
         if(id != null){
             BuildingEntity foundBuilding = buildingRepository.findById(id).orElse(null);
+            assert foundBuilding != null;
             buildingEntity.setAvatar(foundBuilding.getAvatar());
         }
         saveThumbnail(buildingDTO, buildingEntity);

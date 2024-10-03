@@ -349,6 +349,7 @@
             url: '/api/building/',
             data: JSON.stringify(data),
             contentType: 'application/json',
+            dataType: 'json',
             success: function (response) {
                 window.location.href = "<c:url value='/admin/building-list?message=success'/>";
             },

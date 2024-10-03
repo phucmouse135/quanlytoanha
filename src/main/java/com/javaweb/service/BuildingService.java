@@ -20,8 +20,6 @@ public interface BuildingService {
 
     void delete(List<Long> ids);
 
-    void save(BuildingDTO buildingDTO);
-
     List<StaffResponseDTO> getStaffs(Long id);
 
     void assignmentBuilding(Long id, List<Long> staffIds);
