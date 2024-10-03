@@ -23,7 +23,7 @@ public class BuildingAPI {
         return buildingService.findAll(params, typeCodes);
     }
 
-    @PostMapping
+    @PostMapping(value = "/")
     public ResponseEntity<BuildingDTO> saveBuilding(@RequestBody BuildingDTO buildingDTO) {
         return ResponseEntity.ok(buildingService.addOrUpdate(buildingDTO));
     }

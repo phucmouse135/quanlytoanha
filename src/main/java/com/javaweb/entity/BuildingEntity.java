@@ -402,6 +402,9 @@ public class BuildingEntity {
     }
 
     public List<RentAreaEntity> getRentAreas() {
+        if(rentArea == null) {
+            rentArea = new ArrayList<>();
+        }
         return rentArea;
     }
 

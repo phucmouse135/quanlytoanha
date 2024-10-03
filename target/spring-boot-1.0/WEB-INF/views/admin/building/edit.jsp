@@ -47,7 +47,7 @@
                         </div>
                         <div class="widget-body">
                             <div class="widget-main">
-                                <form:form action="${contextPath}" modelAttribute="buildingEdit" method="post"
+                                <form:form action="${contextPath}" modelAttribute="buildingEdit" method="get"
                                            id="form_edit">
                                     <form:input type="hidden" name="id" value="" path="id"/>
                                     <div class="form-group row">
@@ -204,10 +204,13 @@
                                         </div>
                                     </div>
                                     <div class="form-group row">
-                                        <label for="managerName" class="col-sm-2 col-form-label">Tên quản lí</label>
+                                        <label class="col-sm-2 col-form-label">Tên quản lí</label>
                                         <div class="col-sm-10">
-                                            <form:input type="text" class="form-control" id="managerName"
-                                                        name="managerName" path="managerName"/>
+                                            <form:select name="managerName" id="managerName" class="form-control"
+                                                         path="managerName">
+                                                <form:option value="">Chọn nhân viên quản lí</form:option>
+                                                <form:options items="${listStaffs}"/>
+                                            </form:select>
                                         </div>
                                     </div>
                                     <div class="form-group row">

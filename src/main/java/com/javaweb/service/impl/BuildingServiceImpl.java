@@ -94,10 +94,9 @@ public class BuildingServiceImpl implements BuildingService {
 
     @Override
     public void delete(Long id) {
-        buildingRepository.deleteById(id);
         rentAreaSevice.deleteByBuildingId(id);
+        buildingRepository.deleteById(id);
     }
-
     @Override
     public void delete(List<Long> ids) {
         ids.forEach(id -> {
@@ -156,15 +155,19 @@ public class BuildingServiceImpl implements BuildingService {
     @Override
     public BuildingDTO addOrUpdate(BuildingDTO buildingDTO) {
         Long id = buildingDTO.getId();
-        BuildingEntity buildingEntity = modelMapper.map(buildingDTO, BuildingEntity.class);
-        buildingEntity.setType(removeAccent(buildingDTO.getTypeCodes()));
+        BuildingEntity buildingEntity = null;
         if(id != null){
-            BuildingEntity foundBuilding = buildingRepository.findById(id).orElse(null);
-            buildingEntity.setAvatar(foundBuilding.getAvatar());
+            buildingEntity = buildingRepository.findById(id).orElse(null);
         }
+        else {
+            buildingEntity = new BuildingEntity();
+        }
+        buildingEntity = buildingConverter.toBuildingEntity(buildingDTO);
+        buildingEntity.setAvatar(buildingDTO.getAvatar());
         saveThumbnail(buildingDTO, buildingEntity);
         buildingRepository.save(buildingEntity);
-        if(StringUtils.check(buildingDTO.getRentArea())) {
+        buildingDTO.setId(buildingEntity.getId());
+        if(StringUtils.check(buildingDTO.getRentArea())){
             rentAreaSevice.addRentArea(buildingDTO);
         }
         return buildingDTO;
