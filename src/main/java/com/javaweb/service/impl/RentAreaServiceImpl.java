@@ -23,22 +23,10 @@ public class RentAreaServiceImpl implements RentAreaSevice {
     @Autowired
     private BuildingRepository buildingRepository;
 
-    @Autowired
-    private RentAreaConverter rentAreaConverter;
-
-    @Override
-    public void deleteByIds(List<Long> ids) {
-        rentAreaRepository.deleteRentAreaEntitiesByIdIn(ids);
-    }
-
     @Override
     public void deleteByBuildingId(Long buildingId) {
         BuildingEntity buildingEntity = buildingRepository.findById(buildingId).get();
         rentAreaRepository.deleteByBuildingEntity(buildingEntity);
     }
 
-    @Override
-    public void addRentArea(BuildingDTO buildingDTO) {
-       // to do
-    }
 }

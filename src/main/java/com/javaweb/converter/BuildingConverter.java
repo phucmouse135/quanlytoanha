@@ -2,12 +2,17 @@ package com.javaweb.converter;
 
 import com.javaweb.entity.BuildingEntity;
 import com.javaweb.entity.RentAreaEntity;
+import com.javaweb.entity.UserEntity;
 import com.javaweb.model.dto.BuildingDTO;
 import com.javaweb.model.response.BuildingSearchResponse;
+import com.javaweb.repository.UserRepository;
+import com.javaweb.service.IUserService;
+import com.javaweb.service.impl.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,6 +24,9 @@ public class BuildingConverter {
 
     @Autowired
     private RentAreaConverter rentAreaConverter;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public BuildingDTO toBuildingDTO(BuildingEntity buildingEntity) {
         BuildingDTO buildingDTO = modelMapper.map(buildingEntity, BuildingDTO.class);
@@ -46,6 +54,12 @@ public class BuildingConverter {
         }
         buildingEntity.setRentAreas(rentAreaConverter.toRentAreaEntities(buildingDTO, buildingEntity));
         buildingEntity.setDistrict(buildingDTO.getDistrict());
+//        List<UserEntity> staffs = new ArrayList<>();
+//        UserEntity userEntity = new UserEntity();
+//        Long userId = Long.valueOf(buildingDTO.getManagerName());
+//        userEntity = userRepository.findUserEntitiesById(userId);
+//        staffs.add(userEntity);
+//        buildingEntity.setStaffs(staffs);
         return buildingEntity;
     }
 

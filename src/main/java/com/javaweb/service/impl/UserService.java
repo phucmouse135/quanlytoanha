@@ -120,7 +120,7 @@ public class UserService implements IUserService {
 
     @Override
     public UserDTO findUserById(long id) {
-        UserEntity entity = userRepository.findById(id).get();
+        UserEntity entity = userRepository.findUserEntitiesById(id);
         List<RoleEntity> roles = entity.getRoles();
         UserDTO dto = userConverter.convertToDto(entity);
         roles.forEach(item -> {
