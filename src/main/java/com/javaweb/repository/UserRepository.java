@@ -21,4 +21,5 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> , UserRe
 
     List<UserEntity> findAll();
     UserEntity findUserEntitiesById(Long id);
+    Page<UserEntity> findAll(Pageable pageable);
 }

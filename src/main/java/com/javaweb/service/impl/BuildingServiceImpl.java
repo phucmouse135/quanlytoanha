@@ -10,17 +10,17 @@ import com.javaweb.model.dto.BuildingDTO;
 import com.javaweb.model.response.BuildingSearchResponse;
 import com.javaweb.model.response.StaffResponseDTO;
 import com.javaweb.repository.UserRepository;
-import com.javaweb.repository.custom.BuildingRepository;
+import com.javaweb.repository.BuildingRepository;
 import com.javaweb.service.BuildingService;
 import com.javaweb.service.RentAreaSevice;
-import com.javaweb.utils.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -48,7 +48,6 @@ public class BuildingServiceImpl implements BuildingService {
     @Autowired
     private ModelMapper modelMapper;
 
-
     @Override
     public List<BuildingDTO> findAll(Map<String, Object> params, List<String> typeCodes) {
         BuildingSearchBuilder buildingSearchBuilder = buildingSearchBuildingConverter.toBuildingSearchBuilder(params, typeCodes);
@@ -60,6 +59,7 @@ public class BuildingServiceImpl implements BuildingService {
         }
         return buildingDTOs;
     }
+
     @Override
     public List<BuildingSearchResponse> findAll(BuildingSearchBuilder buildingSearchBuilder) {
         List<BuildingEntity> buildingEntities = buildingRepository.findAlls(buildingSearchBuilder);
@@ -144,31 +144,20 @@ public class BuildingServiceImpl implements BuildingService {
             buildingEntity = buildingRepository.findById(id).orElse(null);
         }
         buildingEntity = buildingConverter.toBuildingEntity(buildingDTO);
-        buildingEntity.setAvatar(buildingDTO.getAvatar());
+        buildingRepository.save(buildingEntity);
+        buildingEntity.setRentAreas(rentAreaConverter.toRentAreaEntities(buildingDTO, buildingEntity));
         buildingRepository.save(buildingEntity);
         return buildingDTO;
     }
 
-    private void saveThumbnail(BuildingDTO buildingDTO, BuildingEntity buildingEntity) {
-       String path = "/building/" + buildingDTO.getAvatarName();
-       if(buildingDTO.getAvatar() != null){
-              if(buildingEntity.getAvatar() != null){
-                  if(!path.equals(buildingEntity.getAvatar())){
-                        File file = new File("uploads" + buildingEntity.getAvatar());
-                        if(file.exists()){
-                            file.delete();
-                        }
-                  }
-              }
-              buildingEntity.setAvatar(path);
-       }
-    }
-
-    private String removeAccent(List<String> typeCodes) {
-        StringBuilder type = new StringBuilder();
-        for (String typeCode : typeCodes) {
-            type.append(typeCode).append(",");
+    @Override
+    public List<BuildingSearchResponse> getAllBuilding(Pageable pageable) {
+        Page<BuildingEntity> buildingEntities = buildingRepository.findAll(pageable);
+        List<BuildingSearchResponse> buildingSearchResponses = new ArrayList<>();
+        for (BuildingEntity buildingEntity : buildingEntities) {
+            BuildingSearchResponse buildingSearchResponse = buildingConverter.toBuildingSearchResponse(buildingEntity);
+            buildingSearchResponses.add(buildingSearchResponse);
         }
-        return type.toString();
+        return buildingSearchResponses;
     }
 }

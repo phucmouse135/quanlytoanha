@@ -1,8 +1,10 @@
 package com.javaweb.service;
 
+import com.javaweb.entity.UserEntity;
 import com.javaweb.exception.MyException;
 import com.javaweb.model.dto.PasswordDTO;
 import com.javaweb.model.dto.UserDTO;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -26,4 +28,5 @@ public interface IUserService {
 
     Map<Long, String> getStaffs(Long buildingId);
     Map<Long,String> getStaffs();
+    Page<UserEntity> getUsers(int page , int size, String sortBy);
 }

@@ -1,6 +1,7 @@
 package com.javaweb.controller.admin;
 
 import com.javaweb.builder.BuildingSearchBuilder;
+import com.javaweb.constant.SystemConstant;
 import com.javaweb.converter.BuildingSearchBuildingConverter;
 import com.javaweb.enums.buildingType;
 import com.javaweb.enums.districtCode;
@@ -9,10 +10,14 @@ import com.javaweb.model.request.BuildingSearchRequest;
 import com.javaweb.model.response.BuildingSearchResponse;
 import com.javaweb.service.BuildingService;
 import com.javaweb.service.impl.UserService;
+import com.javaweb.utils.DisplayTagUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,9 +34,12 @@ public class BuildingController {
     private BuildingSearchBuildingConverter buildingSearchBuildingConverter;
 
     @RequestMapping(value = "/admin/building-list", method = RequestMethod.GET)
-    public ModelAndView list(@ModelAttribute BuildingSearchRequest buildingSearchRequest) {
+    public ModelAndView list(@ModelAttribute BuildingSearchRequest buildingSearchRequest, HttpServletRequest request) {
         ModelAndView mav = new ModelAndView("admin/building/list");
         mav.addObject("modalSearch", buildingSearchRequest);
+        mav.addObject("listStaffs", userService.getStaffs());
+        mav.addObject("listDistrict", districtCode.type());
+        mav.addObject("listBuildingTypes", buildingType.type());
         List<BuildingSearchResponse> buildingSearchResponses = new ArrayList<>();
         try {
             BuildingSearchBuilder buildingSearchBuilder;
@@ -45,11 +53,21 @@ public class BuildingController {
         } catch (Exception e) {
             // Log the exception
         }
-        mav.addObject("buildingReponse", buildingSearchResponses);
-        mav.addObject("listStaffs", userService.getStaffs());
-        mav.addObject("listDistrict", districtCode.type());
-        mav.addObject("listBuildingTypes", buildingType.type());
+        mav.addObject("buildingSearchResponses", buildingSearchResponses);
+        BuildingSearchResponse model = new BuildingSearchResponse();
+        DisplayTagUtils.of(request, model);
+        List<BuildingSearchResponse> buildingDisplay = buildingService.getAllBuilding(new PageRequest(model.getPage() - 1, model.getMaxPageItems()));
+        model.setListResult(buildingDisplay);
+        model.setTotalItem(buildingDisplay.size());
+        mav.addObject(SystemConstant.MODEL, model);
+        initMessageResponse(mav, buildingSearchResponses);
         return mav;
+    }
+
+    private void initMessageResponse(ModelAndView mav, List<BuildingSearchResponse> buildingSearchResponses) {
+        if (buildingSearchResponses.size() == 0) {
+            mav.addObject(SystemConstant.MESSAGE_RESPONSE, "No building found");
+        }
     }
 
 

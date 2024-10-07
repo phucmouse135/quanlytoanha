@@ -214,181 +214,42 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Bảng danh sách -->
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="clearfix">
-                        <div class="pull-right tableTools-container">
-                            <div class="btn-group btn-overlap">
-                                <div class="ColVis btn-group" title="" data-original-title="Show/hide columns">
-                                    <button
-                                            class="ColVis_Button ColVis_MasterButton btn btn-white btn-info btn-bold"><span><i
-                                            class="fa fa-search"></i></span></button>
-                                </div>
-                                <a class="DTTT_button btn btn-white btn-primary  btn-bold"
-                                   id="ToolTables_dynamic-table_3" title="" tabindex="0"
-                                   aria-controls="dynamic-table" data-original-title="Print view"><span><i
-                                        class="fa fa-print bigger-110 grey"></i></span></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="table-header">
-                        Danh sách tòa nhà
-                    </div>
-
-                    <!-- div.table-responsive -->
-
-                    <!-- div.dataTables_borderWrap -->
-                    <div>
-                        <div id="dynamic-table_wrapper" class="dataTables_wrapper form-inline no-footer">
-                            <div class="row">
-                                <div class="col-xs-6">
-                                    <div class="dataTables_length" id="dynamic-table_length"><label>Display
-                                        <select name="dynamic-table_length" aria-controls="dynamic-table"
-                                                class="form-control input-sm">
-                                            <option value="10">10</option>
-                                            <option value="25">25</option>
-                                            <option value="50">50</option>
-                                            <option value="100">100</option>
-                                        </select> records</label></div>
-                                </div>
-                                <div class="col-xs-6">
-                                    <div id="dynamic-table_filter" class="dataTables_filter">
-                                        <label>Search:<input type="search" class="form-control input-sm"
-                                                             placeholder="" aria-controls="dynamic-table"></label>
-                                    </div>
-                                </div>
-                            </div>
-                            <table id="dynamic-table"
-                                   class="table table-striped table-bordered table-hover dataTable no-footer DTTT_selectable"
-                                   role="grid" aria-describedby="dynamic-table_info">
-                                <thead>
-                                <tr role="row">
-                                    <th class="center sorting_disabled" rowspan="1" colspan="1"
-                                        aria-label="">
-                                        <label class="pos-rel">
-                                            <input type="checkbox" class="ace">
-                                            <span class="lbl"></span>
-                                        </label>
-                                    </th>
-                                    <th class="sorting" tabindex="0" aria-controls="dynamic-table"
-                                        rowspan="1" colspan="1"
-                                        aria-label="Domain: activate to sort column ascending">Tên tòa nhà
-                                    </th>
-                                    <th class="sorting" tabindex="0" aria-controls="dynamic-table"
-                                        rowspan="1" colspan="1"
-                                        aria-label="Price: activate to sort column ascending">Địa chỉ
-                                    </th>
-                                    <th class="hidden-480 sorting" tabindex="0"
-                                        aria-controls="dynamic-table" rowspan="1" colspan="1"
-                                        aria-label="Clicks: activate to sort column ascending">Số tầng hầm
-                                    </th>
-                                    <th class="sorting" tabindex="0" aria-controls="dynamic-table"
-                                        rowspan="1" colspan="1" aria-label=Update: activate to sort column ascending>
-                                        <i class="ace-icon fa fa-clock-o bigger-110 hidden-480"></i>
-                                        Tên quản lí
-                                    </th>
-                                    <th class="hidden-480 sorting" tabindex="0"
-                                        aria-controls="dynamic-table" rowspan="1" colspan="1"
-                                        aria-label="Clicks: activate to sort column ascending">Số điện thoại
-                                    </th>
-                                    <th class="hidden-480 sorting" tabindex="0"
-                                        aria-controls="dynamic-table" rowspan="1" colspan="1"
-                                        aria-label="Clicks: activate to sort column ascending">DT sàn
-                                    </th>
-                                    <th class="hidden-480 sorting" tabindex="0"
-                                        aria-controls="dynamic-table" rowspan="1" colspan="1"
-                                        aria-label="Clicks: activate to sort column ascending">DT thuê
-                                    </th>
-                                    <th class="hidden-480 sorting" tabindex="0"
-                                        aria-controls="dynamic-table" rowspan="1" colspan="1"
-                                        aria-label="Clicks: activate to sort column ascending">Giá Thuê
-                                    </th>
-                                    <th class="hidden-480 sorting" tabindex="0"
-                                        aria-controls="dynamic-table" rowspan="1" colspan="1"
-                                        aria-label="Clicks: activate to sort column ascending">Giá dịch vụ
-                                    </th>
-                                    <th class="hidden-480 sorting" tabindex="0"
-                                        aria-controls="dynamic-table" rowspan="1" colspan="1"
-                                        aria-label="Clicks: activate to sort column ascending">Phí môi giới
-                                    </th>
-                                    <th>
-                                        <i class="ace-icon fa fa-bolt bigger-110 hidden-480"></i>
-                                        Thao tác
-                                    </th>
-
-                                </tr>
-                                </thead>
-
-                                <tbody>
-                                <c:forEach var="item" items="${buildingReponse}">
-                                    <tr role="row" class="odd">
-                                        <td class="center">
-                                            <label class="pos-rel">
-                                                <input type="checkbox" id="checkList" name="checkList" value="${item.id}" class="ace">
-                                                <span class="lbl"></span>
-                                            </label>
-                                        </td>
-                                        <td>${item.name}</td>
-                                        <td>${item.address}</td>
-                                        <td>${item.numberOfBasement}</td>
-                                        <td>${item.managerName}</td>
-                                        <td>${item.managerPhone}</td>
-                                        <td>${item.floorArea}</td>
-                                        <td>${item.rentArea}</td>
-                                        <td>${item.rentPrice}</td>
-                                        <td>${item.servicePrice}</td>
-                                        <td>${item.brokerageFee}</td>
-                                        <td>
-                                            <div class="hidden-sm hidden-xs action-buttons">
-                                                <a class="blue" href="javascript:void(0)"
-                                                   onclick="assignmentBuilding(${item.id})">
-                                                    <i class="ace-icon fa fa-user bigger-130"></i>
-                                                </a>
-                                                <a class="green" href="/admin/building-edit?id=${item.id}">
-                                                    <i class="ace-icon fa fa-pencil bigger-130"></i>
-                                                </a>
-                                                <a class="red" href="javascript:void(0)" onclick="deleteBuilding(${item.id})">
-                                                    <i class="ace-icon fa fa-trash-o bigger-130"></i>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </c:forEach>
-                                </tbody>
-                            </table>
-                            <%--                            Phân trang--%>
-                            <div class="row">
-                                <div class="col-xs-6">
-                                    <div class="dataTables_info" id="dynamic-table_info" role="status"
-                                         aria-live="polite">Showing 1 to 10 of 23 entries
-                                    </div>
-                                </div>
-                                <div class="col-xs-6">
-                                    <div class="dataTables_paginate paging_simple_numbers"
-                                         id="dynamic-table_paginate">
-                                        <ul class="pagination">
-                                            <li class="paginate_button previous disabled"
-                                                aria-controls="dynamic-table" tabindex="0"
-                                                id="dynamic-table_previous"><a href="#">Previous</a></li>
-                                            <li class="paginate_button active" aria-controls="dynamic-table"
-                                                tabindex="0"><a href="#">1</a></li>
-                                            <li class="paginate_button " aria-controls="dynamic-table"
-                                                tabindex="0"><a href="#">2</a></li>
-                                            <li class="paginate_button " aria-controls="dynamic-table"
-                                                tabindex="0"><a href="#">3</a></li>
-                                            <li class="paginate_button next" aria-controls="dynamic-table"
-                                                tabindex="0" id="dynamic-table_next"><a href="#">Next</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="table-header">
+                Danh sách tòa nhà
             </div>
-
+            <div>
+                <display:table name="buildingSearchResponses" requestURI="/admin/building-list" pagesize="5" id="building">
+                    <display:column title="Select">
+                        <input type="checkbox" name="checkList" value="${building.id}" class="ace">
+                        <span class="lbl"></span>
+                    </display:column>
+                    <display:column property="name" title="Tên tòa nhà" sortable="true"/>
+                    <display:column property="address" title="Địa chỉ" sortable="true"/>
+                    <display:column property="numberOfBasement" title="Số tầng hầm" sortable="true"/>
+                    <display:column property="managerName" title="Tên quản lí" sortable="true"/>
+                    <display:column property="managerPhone" title="Số điện thoại" sortable="true"/>
+                    <display:column property="floorArea" title="DT sàn" sortable="true"/>
+                    <display:column property="rentArea" title="DT thuê" sortable="true"/>
+                    <display:column property="rentPrice" title="Giá Thuê" sortable="true"/>
+                    <display:column property="servicePrice" title="Giá dịch vụ" sortable="true"/>
+                    <display:column property="brokerageFee" title="Phí môi giới" sortable="true"/>
+                    <display:column title="Thao tác">
+                        <div class="hidden-sm hidden-xs action-buttons">
+                            <a class="blue" href="javascript:void(0)" onclick="assignmentBuilding(${building.id})">
+                                <i class="ace-icon fa fa-user bigger-130"></i>
+                            </a>
+                            <a class="green" href="/admin/building-edit?id=${building.id}">
+                                <i class="ace-icon fa fa-pencil bigger-130"></i>
+                            </a>
+                            <a class="red" href="javascript:void(0)" onclick="deleteBuilding(${building.id})">
+                                <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                            </a>
+                        </div>
+                    </display:column>
+                    <display:setProperty name="paging.banner.placement" value="bottom"/>
+                    <display:setProperty name="export" value="true"/>
+                </display:table>
+            </div>
 
         </div><!-- /.page-content -->
     </div>

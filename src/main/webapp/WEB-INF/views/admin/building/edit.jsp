@@ -206,11 +206,8 @@
                                     <div class="form-group row">
                                         <label for="managerName" class="col-sm-2 col-form-label">Tên quản lí</label>
                                         <div class="col-sm-10">
-                                            <form:select name="managerName" id="managerName" class="form-control"
-                                                         path="managerName">
-                                                <form:option value="">Chọn quản lý</form:option>
-                                                <form:options items="${listStaffs}"/>
-                                            </form:select>
+                                            <form:input type="text" class="form-control" id="managerName"
+                                                        name="managerName" path="managerName"/>
                                         </div>
                                     </div>
                                     <div class="form-group row">
@@ -237,20 +234,6 @@
                                         <div class="col-sm-10">
                                             <form:input type="text" class="form-control" id="notes" name="note"
                                                         path="note"/>
-                                        </div>
-                                    </div>
-                                    <div class="form-group row">
-                                        <label class="col-sm-2 col-form-label">Hình đại diện</label>
-                                        <input class="col-sm-3 no-padding-right" type="file" id="uploadImage">
-                                        <div class="col-sm-10">
-                                            <c:if test="${!empty buildingEdit.avatar}">
-                                                <c:set var="avatarPath" value="/reppsitory${buildingEdit.avatar}"/>
-                                                <img src="${avatarPath}" alt="avatar" width="100px" height="100px">
-                                            </c:if>
-                                            <c:if test="${empty buildingEdit.avatar}">
-                                                <img src="/resources/images/no-image.png" alt="avatar" width="100px"
-                                                     height="100px">
-                                            </c:if>
                                         </div>
                                     </div>
                                     <c:if test="${!empty buildingEdit.id}">
@@ -289,21 +272,6 @@
 </div><!-- /.page-content -->
 
 <script>
-    var avatar = '';
-    var avatarName = '';
-
-    // Xử lý sự kiện khi người dùng chọn file ảnh
-    $('#uploadImage').change(function () {
-        var file = this.files[0];
-        var reader = new FileReader();
-        reader.onload = function (e) {
-            avatar = e.target.result;
-            avatarName = file.name;
-        };
-        reader.readAsDataURL(file);
-    });
-
-
     const btn_add_building = document.getElementById('btn_add_building');
 
     btn_add_building.addEventListener('click', (e) => {
@@ -324,14 +292,9 @@
                 } else {
                     data[field.name] = field.value;
                 }
-                if('' !== avatar) {
-                    data['avatar'] = avatar;
-                    data['avatarName'] = avatarName;
-                }
             });
 
             data['typeCodes'] = typeCodes;
-            $('#loading_image').show();
             console.log(data);
             if(typeCodes != '') {
                 addOrUpdateBuilding(data);

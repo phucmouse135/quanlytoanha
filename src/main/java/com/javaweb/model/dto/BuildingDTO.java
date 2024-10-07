@@ -5,6 +5,7 @@ import java.util.List;
 
 public class BuildingDTO extends AbstractDTO<BuildingDTO> {
 
+    private Long id;
     private String name;
     private String street;
     private String ward;
@@ -47,6 +48,14 @@ public class BuildingDTO extends AbstractDTO<BuildingDTO> {
     private List<String> typeCodes;
 
     private List<RentAreaDTO> rentAreas;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public List<String> getTypeCodes() {
         return typeCodes;

@@ -4,6 +4,7 @@ package com.javaweb.model.response;
 import com.javaweb.model.dto.AbstractDTO;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class BuildingSearchResponse extends AbstractDTO {
@@ -18,6 +19,16 @@ public class BuildingSearchResponse extends AbstractDTO {
 	private String servicePrice;
 	private String brokerageFee;
 	private Long numberOfBasement; // Add this property
+
+	private List<Integer> totalPages ; // Add this property
+
+//	public List<Integer> getTotalPages() {
+//		return totalPages;
+//	}
+//
+//	public void setTotalPages(List<Integer> totalPages) {
+//		this.totalPages = totalPages;
+//	}
 
 	private Map<Long,String> staffs = new HashMap<>(); // Add this property
 

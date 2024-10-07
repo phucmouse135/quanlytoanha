@@ -14,7 +14,8 @@ import java.util.List;
 public class RentAreaConverter {
     @Autowired
     private RentAreaSevice rentAreaSevice;
-    public RentAreaEntity toRentAreaEntity(BuildingEntity buildingEntity , long value) {
+
+    public RentAreaEntity toRentAreaEntity(BuildingEntity buildingEntity, Long value) {
         RentAreaEntity res = new RentAreaEntity();
         res.setValue(value);
         res.setBuildingEntity(buildingEntity);
@@ -22,13 +23,28 @@ public class RentAreaConverter {
     }
 
     public List<RentAreaEntity> toRentAreaEntities(BuildingDTO buildingDTO, BuildingEntity buildingEntity) {
-        String[] rentArea = buildingDTO.getRentArea().trim().split(",");
-        List<RentAreaEntity> res = new ArrayList<>();
-        for (String area : rentArea) {
-            rentAreaSevice.deleteByBuildingId(buildingDTO.getId());
-            RentAreaEntity rentAreaEntity = toRentAreaEntity(buildingEntity, Long.parseLong(area));
-            res.add(rentAreaEntity);
+        String rentAreaStr = buildingDTO.getRentArea();
+        if (rentAreaStr == null || rentAreaStr.trim().isEmpty()) {
+            throw new IllegalArgumentException("Rent area cannot be null or empty");
         }
+
+        if (buildingEntity.getId() != null) {
+            rentAreaSevice.deleteByBuildingId(buildingEntity.getId());
+        }
+
+        String[] rentArea = rentAreaStr.trim().split(",");
+        List<RentAreaEntity> res = new ArrayList<>();
+
+        for (String area : rentArea) {
+            try {
+                Long value = Long.parseLong(area.trim());
+                RentAreaEntity rentAreaEntity = toRentAreaEntity(buildingEntity, value);
+                res.add(rentAreaEntity);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Invalid rent area value: " + area, e);
+            }
+        }
+
         return res;
     }
 }

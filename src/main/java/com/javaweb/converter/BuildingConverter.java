@@ -6,8 +6,7 @@ import com.javaweb.entity.UserEntity;
 import com.javaweb.model.dto.BuildingDTO;
 import com.javaweb.model.response.BuildingSearchResponse;
 import com.javaweb.repository.UserRepository;
-import com.javaweb.service.IUserService;
-import com.javaweb.service.impl.UserService;
+import com.javaweb.repository.BuildingRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,6 +26,9 @@ public class BuildingConverter {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private BuildingRepository buildingRepository;
 
     public BuildingDTO toBuildingDTO(BuildingEntity buildingEntity) {
         BuildingDTO buildingDTO = modelMapper.map(buildingEntity, BuildingDTO.class);
@@ -48,18 +50,17 @@ public class BuildingConverter {
     }
 
     public BuildingEntity toBuildingEntity(BuildingDTO buildingDTO) {
-        BuildingEntity buildingEntity = modelMapper.map(buildingDTO, BuildingEntity.class);
+        Long id = buildingDTO.getId() != null ? buildingDTO.getId() : null;
+        BuildingEntity buildingEntity = buildingRepository.findBuildingEntityById(id).orElse(new BuildingEntity());
+        ArrayList<UserEntity> staffs = new ArrayList<>();
+        if(buildingEntity.getStaffs() != null) {
+            staffs.addAll(buildingEntity.getStaffs());
+        }
+        buildingEntity = modelMapper.map(buildingDTO, BuildingEntity.class);
         if (buildingDTO.getTypeCodes() != null) {
             buildingEntity.setType(String.join(",", buildingDTO.getTypeCodes()));
         }
-        buildingEntity.setRentAreas(rentAreaConverter.toRentAreaEntities(buildingDTO, buildingEntity));
-        buildingEntity.setDistrict(buildingDTO.getDistrict());
-//        List<UserEntity> staffs = new ArrayList<>();
-//        UserEntity userEntity = new UserEntity();
-//        Long userId = Long.valueOf(buildingDTO.getManagerName());
-//        userEntity = userRepository.findUserEntitiesById(userId);
-//        staffs.add(userEntity);
-//        buildingEntity.setStaffs(staffs);
+        buildingEntity.setStaffs(staffs);
         return buildingEntity;
     }
 
