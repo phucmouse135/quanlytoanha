@@ -1,9 +1,12 @@
 package com.javaweb.config;
 
+import com.javaweb.filter.JwtRequestFilter;
 import com.javaweb.security.CustomSuccessHandler;
 import com.javaweb.service.impl.CustomUserDetailService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,10 +15,14 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    private JwtRequestFilter jwtRequestFilter;
 
     @Bean
     public UserDetailsService userDetailsService() {
@@ -42,11 +49,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-                http.csrf().disable()
-                .authorizeRequests()
-                        //.antMatchers("/admin/building-edit").hasAnyRole("MANAGER")
-                        .antMatchers("/admin/**").hasAnyRole("MANAGER","STAFF","ADMIN")
-                        .antMatchers("/login", "/resource/**", "/trang-chu", "/api/**").permitAll()
+        http.csrf().disable()
+        .authorizeRequests()
+                .antMatchers("/admin/**").hasAnyRole("MANAGER","STAFF","ADMIN")
+                .antMatchers("/login", "/resource/**", "/trang-chu", "/api/**").permitAll()
                 .and()
                 .formLogin().loginPage("/login").usernameParameter("j_username").passwordParameter("j_password").permitAll()
                 .loginProcessingUrl("/j_spring_security_check")
@@ -55,10 +61,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .logout().logoutUrl("/logout").deleteCookies("JSESSIONID")
                 .and().exceptionHandling().accessDeniedPage("/access-denied").and()
                 .sessionManagement().maximumSessions(1).expiredUrl("/login?sessionTimeout");
+        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
     @Bean
     public AuthenticationSuccessHandler myAuthenticationSuccessHandler(){
         return new CustomSuccessHandler();
+    }
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
     }
 }

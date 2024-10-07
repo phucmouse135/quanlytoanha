@@ -29,4 +29,8 @@ public interface IUserService {
     Map<Long, String> getStaffs(Long buildingId);
     Map<Long,String> getStaffs();
     Page<UserEntity> getUsers(int page , int size, String sortBy);
+
+    UserEntity register(UserEntity userEntity);
+    UserEntity loadUserByUsername(String userName);
+    String login(String userName, String password);
 }

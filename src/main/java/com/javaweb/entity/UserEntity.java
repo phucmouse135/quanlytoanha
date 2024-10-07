@@ -1,11 +1,19 @@
 package com.javaweb.entity;
 
+import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
 @Table(name = "user")
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class UserEntity extends BaseEntity {
 
     private static final long serialVersionUID = -4988455421375043688L;
@@ -42,6 +50,7 @@ public class UserEntity extends BaseEntity {
     private String modifiedBy;
 
 
+    @Getter
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_role",
             joinColumns = @JoinColumn(name = "user_id", nullable = false),
@@ -54,16 +63,8 @@ public class UserEntity extends BaseEntity {
     @ManyToMany(mappedBy = "staffCustomer", fetch = FetchType.LAZY)
     private List<CustomerEntity> customers = new ArrayList<>();
 
-
-
-
-
-
-//    @OneToMany(mappedBy="staffs", fetch = FetchType.LAZY)
-//    private List<AssignmentBuildingEntity> assignmentBuildingEntities = new ArrayList<>();
-//
-//    @OneToMany(mappedBy="users", fetch = FetchType.LAZY)
-//    private List<UserRoleEntity> userRoleEntities = new ArrayList<>();
+    @OneToMany(mappedBy="users", fetch = FetchType.LAZY)
+    private List<RoleEntity> userRoleEntities = new ArrayList<>();
 
     public List<CustomerEntity> getCustomers() {
         return customers;
@@ -139,5 +140,14 @@ public class UserEntity extends BaseEntity {
     @Override
     public void setId(Long id) {
         this.id = id;
+    }
+
+
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
+        for (RoleEntity role : roles) {
+            authorityList.add(new SimpleGrantedAuthority("ROLE_" + role.getName().toUpperCase()));
+        }
+        return authorityList;
     }
 }

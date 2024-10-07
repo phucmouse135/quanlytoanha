@@ -10,12 +10,19 @@ import com.javaweb.model.dto.UserDTO;
 import com.javaweb.repository.RoleRepository;
 import com.javaweb.repository.UserRepository;
 import com.javaweb.service.IUserService;
+import com.javaweb.utils.JwtUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +48,12 @@ public class UserService implements IUserService {
 
     @Autowired
     private UserConverter userConverter;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
 
 
@@ -105,6 +118,44 @@ public class UserService implements IUserService {
     public Page<UserEntity> getUsers(int page, int size, String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         return userRepository.findAll(pageable);
+    }
+
+    @Override
+    public UserEntity register(UserEntity userEntity) {
+        String username = userEntity.getUserName();
+        if (userRepository.findOneByUserName(username) != null) {
+            throw new DataIntegrityViolationException("Username already exists");
+        }
+        RoleEntity role = roleRepository.findById(userEntity.getId()).orElseThrow(() -> new DataIntegrityViolationException("Role not found"));
+        UserEntity newUser = UserEntity.builder()
+                .fullName(userEntity.getFullName())
+                .userName(userEntity.getUserName())
+                .password(userEntity.getPassword())
+                .email(userEntity.getEmail())
+                .build();
+        newUser.setRoles(Stream.of(role).collect(Collectors.toList()));
+        newUser.setStatus(1);
+        userRepository.save(userEntity);
+        return userEntity;
+    }
+
+    @Override
+    public UserEntity loadUserByUsername(String userName) {
+        return userRepository.findOneByUserName(userName);
+    }
+
+    @Override
+    public String login(String userName, String password) {
+        UserEntity userEntity = userRepository.findOneByUserName(userName);
+        if (userEntity == null) {
+            throw new UsernameNotFoundException("Invalid username or password");
+        }
+        if (!passwordEncoder.matches(password, userEntity.getPassword())) {
+            throw new BadCredentialsException("Invalid username or password");
+        }
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userName, password, userEntity.getAuthorities());
+        authenticationManager.authenticate(authenticationToken);
+        return jwtUtil.generateToken((UserDetails) userEntity);
     }
 
 
