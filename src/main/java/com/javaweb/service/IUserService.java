@@ -4,6 +4,7 @@ import com.javaweb.entity.UserEntity;
 import com.javaweb.exception.MyException;
 import com.javaweb.model.dto.PasswordDTO;
 import com.javaweb.model.dto.UserDTO;
+import com.javaweb.model.request.AuthenticationRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -30,7 +31,7 @@ public interface IUserService {
     Map<Long,String> getStaffs();
     Page<UserEntity> getUsers(int page , int size, String sortBy);
 
-    UserEntity register(UserEntity userEntity);
+    UserEntity register(AuthenticationRequest authenticationRequest);
     UserEntity loadUserByUsername(String userName);
     String login(String userName, String password);
 }

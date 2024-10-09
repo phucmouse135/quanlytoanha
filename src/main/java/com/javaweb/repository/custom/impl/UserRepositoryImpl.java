@@ -17,7 +17,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 	private EntityManager entityManager;
 
 	@Override
-	public List<UserEntity> findByRole(String roleCode) {
+	public List findByRole(String roleCode) {
 		//JPQL
 		String sql = "FROM UserEntity";
 		Query query = entityManager.createNativeQuery(sql, UserEntity.class);
@@ -25,7 +25,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 	}
 
 	@Override
-	public List<UserEntity> getAllUsers(Pageable pageable) {
+	public List getAllUsers(Pageable pageable) {
 
 		StringBuilder sql = new StringBuilder(buildQueryFilter())
 				.append(" LIMIT ").append(pageable.getPageSize()).append("\n")
@@ -39,7 +39,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 	@Override
 	public int countTotalItem() {
 		String sql = buildQueryFilter();
-		Query query = entityManager.createNativeQuery(sql.toString());
+		Query query = entityManager.createNativeQuery(sql);
 		return query.getResultList().size();
 	}
 

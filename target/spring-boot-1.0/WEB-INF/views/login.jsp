@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
-<%@include file="/common/taglib.jsp"%>	
+<%@include file="/common/taglib.jsp"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -13,12 +13,12 @@
 		<div class="login-form">
 			<div class="main-div">
 				<c:if test="${param.incorrectAccount != null}">
-					<div class="alert alert-danger">	
+					<div class="alert alert-danger">
 							Username or password incorrect
 					</div>
 				</c:if>
 				<c:if test="${param.accessDenied != null}">
-					<div class="alert alert-danger">	
+					<div class="alert alert-danger">
 							You Not authorize
 					</div>
 				</c:if>
@@ -66,7 +66,7 @@
 												</div>
 											</div>
 											<div class="text-center">
-												<p class="mb-0 tex-center account">Don't have an account? <a href="#!" class="text-white-50 fw-bold">Sign Up</a></p>
+												<p class="mb-0 tex-center account">Don't have an account? <a href="/registerForm" class="text-white-50 fw-bold" id="sign_in">Sign Up</a></p>
 											</div>
 
 										</div>
@@ -81,5 +81,43 @@
 			</div>
 		</div>
 	</div>
+
+	<script>
+		$(document).ready(function() {
+			$("#formLogin").submit(function() {
+				var userName = $("#userName").val();
+				var password = $("#password").val();
+				if (userName == "" || password == "") {
+					alert("Vui lòng nhập đầy đủ thông tin");
+					return false;
+				}
+			});
+		});
+		$('#sign_in').click(function(){
+			data = {};
+			data['username'] = $('#userName').val();
+			data['password'] = $('#password').val();
+			login(data);
+		});
+		function login(data){
+			$.ajax({
+				type: "POST",
+				url: "api/users/sign_in",
+				data: JSON.stringify(data),
+				contentType: 'application/json',
+				dataType: "json",
+				success: function(response){
+					if(response.status == "success"){
+						window.location.href = "home";
+					}else{
+						alert("error");
+					}
+				},
+				error: function(){
+					alert("error");
+				}
+			});
+		}
+	</script>
 </body>
 </html>

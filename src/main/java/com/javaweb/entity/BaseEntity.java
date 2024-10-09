@@ -1,5 +1,7 @@
 package com.javaweb.entity;
 
+import com.javaweb.service.SomeService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -8,7 +10,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Date;
+import java.sql.Date;
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
@@ -22,7 +24,7 @@ public class BaseEntity implements Serializable {
 
     @Column(name = "createddate")
     @CreatedDate
-    private Date createdDate;
+    private String createdDate;
 
     @Column(name = "createdby")
     @CreatedBy
@@ -30,7 +32,7 @@ public class BaseEntity implements Serializable {
 
     @Column(name = "modifieddate")
     @LastModifiedDate
-    private Date modifiedDate;
+    private String modifiedDate;
 
     @Column(name = "modifiedby")
     @LastModifiedBy
@@ -44,11 +46,11 @@ public class BaseEntity implements Serializable {
         this.id = id;
     }
 
-    public Date getCreatedDate() {
+    public String getCreatedDate() {
         return createdDate;
     }
 
-    public void setCreatedDate(Date createdDate) {
+    public void setCreatedDate(String createdDate) {
         this.createdDate = createdDate;
     }
 
@@ -60,11 +62,11 @@ public class BaseEntity implements Serializable {
         this.createdBy = createdBy;
     }
 
-    public Date getModifiedDate() {
+    public String getModifiedDate() {
         return modifiedDate;
     }
 
-    public void setModifiedDate(Date modifiedDate) {
+    public void setModifiedDate(String modifiedDate) {
         this.modifiedDate = modifiedDate;
     }
 
@@ -74,5 +76,13 @@ public class BaseEntity implements Serializable {
 
     public void setModifiedBy(String modifiedBy) {
         this.modifiedBy = modifiedBy;
+    }
+
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public void setCreateDate(Date date) {
+
     }
 }

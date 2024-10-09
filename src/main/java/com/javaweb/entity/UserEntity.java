@@ -50,12 +50,8 @@ public class UserEntity extends BaseEntity {
     private String modifiedBy;
 
 
-    @Getter
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "user_role",
-            joinColumns = @JoinColumn(name = "user_id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name = "role_id", nullable = false))
-    private List<RoleEntity> roles = new ArrayList<>();
+    @ManyToMany(mappedBy = "users", fetch = FetchType.LAZY)
+    private List<RoleEntity> roles;
 
     @ManyToMany(mappedBy = "staffs", fetch = FetchType.LAZY)
     private List<BuildingEntity> buildings = new ArrayList<>();
@@ -63,8 +59,13 @@ public class UserEntity extends BaseEntity {
     @ManyToMany(mappedBy = "staffCustomer", fetch = FetchType.LAZY)
     private List<CustomerEntity> customers = new ArrayList<>();
 
-    @OneToMany(mappedBy="users", fetch = FetchType.LAZY)
-    private List<RoleEntity> userRoleEntities = new ArrayList<>();
+    public List<RoleEntity> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<RoleEntity> roles) {
+        this.roles = roles;
+    }
 
     public List<CustomerEntity> getCustomers() {
         return customers;
@@ -117,13 +118,7 @@ public class UserEntity extends BaseEntity {
         this.status = status;
     }
 
-    public List<RoleEntity> getRoles() {
-        return roles;
-    }
 
-    public void setRoles(List<RoleEntity> roles) {
-        this.roles = roles;
-    }
 
     public String getEmail() {
         return email;
@@ -146,7 +141,7 @@ public class UserEntity extends BaseEntity {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
         for (RoleEntity role : roles) {
-            authorityList.add(new SimpleGrantedAuthority("ROLE_" + role.getName().toUpperCase()));
+            authorityList.add(new SimpleGrantedAuthority("ROLE_" + role.getCode().toUpperCase()));
         }
         return authorityList;
     }

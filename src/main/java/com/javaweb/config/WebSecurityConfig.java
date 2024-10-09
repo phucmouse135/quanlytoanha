@@ -49,18 +49,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        // Disable CSRF
         http.csrf().disable()
-        .authorizeRequests()
-                .antMatchers("/admin/**").hasAnyRole("MANAGER","STAFF","ADMIN")
-                .antMatchers("/login", "/resource/**", "/trang-chu", "/api/**").permitAll()
+                .authorizeRequests()
+                .antMatchers("/admin/**").hasAnyRole("MANAGER", "STAFF", "ADMIN")
+                .antMatchers("/login", "/resource/**", "/trang-chu", "/api/**" , "/register").permitAll()
+                .antMatchers("/register", "/api/users/register").permitAll()
                 .and()
-                .formLogin().loginPage("/login").usernameParameter("j_username").passwordParameter("j_password").permitAll()
-                .loginProcessingUrl("/j_spring_security_check")
-                .successHandler(myAuthenticationSuccessHandler())
-                .failureUrl("/login?incorrectAccount").and()
                 .logout().logoutUrl("/logout").deleteCookies("JSESSIONID")
                 .and().exceptionHandling().accessDeniedPage("/access-denied").and()
                 .sessionManagement().maximumSessions(1).expiredUrl("/login?sessionTimeout");
+
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
