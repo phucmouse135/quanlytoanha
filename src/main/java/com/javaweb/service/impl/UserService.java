@@ -7,12 +7,14 @@ import com.javaweb.entity.UserEntity;
 import com.javaweb.exception.MyException;
 import com.javaweb.model.dto.PasswordDTO;
 import com.javaweb.model.dto.UserDTO;
+import com.javaweb.model.request.AuthenticationRequest;
 import com.javaweb.repository.RoleRepository;
 import com.javaweb.repository.UserRepository;
 import com.javaweb.service.IUserService;
 import com.javaweb.utils.JwtUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +24,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -55,6 +58,9 @@ public class UserService implements IUserService {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    @Qualifier("customUserDetailService")
+    private UserDetailsService userDetailsService;
 
 
     @Override
@@ -121,22 +127,33 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public UserEntity register(UserEntity userEntity) {
-        String username = userEntity.getUserName();
+    public UserEntity register(AuthenticationRequest authenticationRequest) {
+        String username = authenticationRequest.getUsername();
         if (userRepository.findOneByUserName(username) != null) {
             throw new DataIntegrityViolationException("Username already exists");
         }
-        RoleEntity role = roleRepository.findById(userEntity.getId()).orElseThrow(() -> new DataIntegrityViolationException("Role not found"));
+        List<RoleEntity> roles = new ArrayList<>();
+        String[] rolecodes = authenticationRequest.getRolecode().split(",");
+        for (String rolecode : rolecodes) {
+            RoleEntity role = roleRepository.findOneByCode(rolecode);
+            if (role != null) {
+                roles.add(role);
+            } else {
+                throw new IllegalArgumentException("Role not found: " + rolecode);
+            }
+        }
         UserEntity newUser = UserEntity.builder()
-                .fullName(userEntity.getFullName())
-                .userName(userEntity.getUserName())
-                .password(userEntity.getPassword())
-                .email(userEntity.getEmail())
+                .userName(username)
+                .password(passwordEncoder.encode(authenticationRequest.getPassword()))
+                .email(authenticationRequest.getEmail())
+                .fullName(authenticationRequest.getFullName())
+                .roles(roles)
+                .status(1)
                 .build();
-        newUser.setRoles(Stream.of(role).collect(Collectors.toList()));
-        newUser.setStatus(1);
-        userRepository.save(userEntity);
-        return userEntity;
+        for(RoleEntity role : roles) {
+            role.getUsers().add(newUser);
+        }
+        return userRepository.save(newUser);
     }
 
     @Override
@@ -146,16 +163,16 @@ public class UserService implements IUserService {
 
     @Override
     public String login(String userName, String password) {
-        UserEntity userEntity = userRepository.findOneByUserName(userName);
-        if (userEntity == null) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
+        if (userDetails == null) {
             throw new UsernameNotFoundException("Invalid username or password");
         }
-        if (!passwordEncoder.matches(password, userEntity.getPassword())) {
+        if (!passwordEncoder.matches(password, userDetails.getPassword())) {
             throw new BadCredentialsException("Invalid username or password");
         }
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userName, password, userEntity.getAuthorities());
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userName, password, userDetails.getAuthorities());
         authenticationManager.authenticate(authenticationToken);
-        return jwtUtil.generateToken((UserDetails) userEntity);
+        return jwtUtil.generateToken(userDetails);
     }
 
 
@@ -193,7 +210,7 @@ public class UserService implements IUserService {
     public UserDTO insert(UserDTO newUser) {
         RoleEntity role = roleRepository.findOneByCode(newUser.getRoleCode());
         UserEntity userEntity = userConverter.convertToEntity(newUser);
-        userEntity.setRoles(Stream.of(role).collect(Collectors.toList()));
+        userEntity.setRoles((ArrayList<RoleEntity>) Stream.of(role).collect(Collectors.toList()));
         userEntity.setStatus(1);
         userEntity.setPassword(passwordEncoder.encode(SystemConstant.PASSWORD_DEFAULT));
         return userConverter.convertToDto(userRepository.save(userEntity));
@@ -207,7 +224,7 @@ public class UserService implements IUserService {
         UserEntity userEntity = userConverter.convertToEntity(updateUser);
         userEntity.setUserName(oldUser.getUserName());
         userEntity.setStatus(oldUser.getStatus());
-        userEntity.setRoles(Stream.of(role).collect(Collectors.toList()));
+        userEntity.setRoles((ArrayList<RoleEntity>) Stream.of(role).collect(Collectors.toList()));
         userEntity.setPassword(oldUser.getPassword());
         return userConverter.convertToDto(userRepository.save(userEntity));
     }

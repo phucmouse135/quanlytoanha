@@ -1,8 +1,11 @@
 package com.javaweb.controller.admin;
 
+import com.javaweb.entity.RoleEntity;
 import com.javaweb.entity.UserEntity;
 import com.javaweb.model.request.AuthenticationRequest;
+import com.javaweb.model.request.LoginRequest;
 import com.javaweb.model.response.AuthenticationResponse;
+import com.javaweb.repository.RoleRepository;
 import com.javaweb.service.impl.UserService;
 import com.javaweb.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,13 +15,17 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+import java.util.ArrayList;
+
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("api/users")
 public class AuthController {
 
     @Autowired
@@ -30,28 +37,34 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private RoleRepository roleRepository;
+
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody UserEntity user) {
-        if (userService.loadUserByUsername(user.getUserName()) != null) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists!");
+    public ResponseEntity<String> sign_up(@Valid @RequestBody AuthenticationRequest authenticationRequest , BindingResult result) {
+        if(result.hasErrors()) {
+            return ResponseEntity.badRequest().body("Invalid input");
         }
-        userService.register(user);
-        return ResponseEntity.ok("User registered successfully!");
+        if(!authenticationRequest.getPassword().equals(authenticationRequest.getRetypePassword())) {
+            return ResponseEntity.badRequest().body("Password not match");
+        }
+        try {
+            userService.register(authenticationRequest);
+            return ResponseEntity.ok("Register successful!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthenticationRequest authenticationRequest) {
+    @PostMapping("/sign_in")
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
         try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(authenticationRequest.getUserName(), authenticationRequest.getPassword())
-            );
+            String token = userService.login(loginRequest.getUsername(), loginRequest.getPassword());
+            AuthenticationResponse authenticationResponse = new AuthenticationResponse();
+            authenticationResponse.setJwtToken(token);
+            return ResponseEntity.ok("Login successful!");
         } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect username or password!");
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-
-        final UserDetails userDetails = (UserDetails) userService.loadUserByUsername(authenticationRequest.getUserName());
-        final String jwt = jwtUtil.generateToken(userDetails);
-
-        return ResponseEntity.ok(new AuthenticationResponse(jwt));
     }
 }

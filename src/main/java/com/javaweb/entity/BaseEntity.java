@@ -22,7 +22,7 @@ public class BaseEntity implements Serializable {
 
     @Column(name = "createddate")
     @CreatedDate
-    private Date createdDate;
+    private String createdDate;
 
     @Column(name = "createdby")
     @CreatedBy
@@ -30,7 +30,7 @@ public class BaseEntity implements Serializable {
 
     @Column(name = "modifieddate")
     @LastModifiedDate
-    private Date modifiedDate;
+    private String modifiedDate;
 
     @Column(name = "modifiedby")
     @LastModifiedBy
@@ -44,11 +44,11 @@ public class BaseEntity implements Serializable {
         this.id = id;
     }
 
-    public Date getCreatedDate() {
+    public String getCreatedDate() {
         return createdDate;
     }
 
-    public void setCreatedDate(Date createdDate) {
+    public void setCreatedDate(String createdDate) {
         this.createdDate = createdDate;
     }
 
@@ -60,11 +60,11 @@ public class BaseEntity implements Serializable {
         this.createdBy = createdBy;
     }
 
-    public Date getModifiedDate() {
+    public String getModifiedDate() {
         return modifiedDate;
     }
 
-    public void setModifiedDate(Date modifiedDate) {
+    public void setModifiedDate(String modifiedDate) {
         this.modifiedDate = modifiedDate;
     }
 

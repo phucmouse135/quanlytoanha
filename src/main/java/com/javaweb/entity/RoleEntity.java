@@ -33,11 +33,11 @@ public class RoleEntity extends BaseEntity {
         this.id = id;
     }
 
-    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
-    private List<UserEntity> user = new ArrayList<>();
-
-//    @OneToMany(mappedBy="roles",fetch = FetchType.LAZY)
-//    private List<UserRoleEntity> userRoleEntities = new ArrayList<>();
+    @ManyToMany
+    @JoinTable(name = "user_role",
+            joinColumns = @JoinColumn(name = "role_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "user_id", nullable = false))
+    private List<UserEntity> userEntities = new ArrayList<>();
 
     public String getName() {
         return name;
@@ -56,11 +56,11 @@ public class RoleEntity extends BaseEntity {
     }
 
     public List<UserEntity> getUsers() {
-        return user;
+        return userEntities;
     }
 
     public void setUsers(List<UserEntity> users) {
-        this.user = users;
+        this.userEntities = users;
     }
 
 }

@@ -49,22 +49,14 @@ public class UserEntity extends BaseEntity {
     @Column(name="modifiedby")
     private String modifiedBy;
 
-
-    @Getter
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "user_role",
-            joinColumns = @JoinColumn(name = "user_id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name = "role_id", nullable = false))
-    private List<RoleEntity> roles = new ArrayList<>();
-
     @ManyToMany(mappedBy = "staffs", fetch = FetchType.LAZY)
     private List<BuildingEntity> buildings = new ArrayList<>();
 
     @ManyToMany(mappedBy = "staffCustomer", fetch = FetchType.LAZY)
     private List<CustomerEntity> customers = new ArrayList<>();
 
-    @OneToMany(mappedBy="users", fetch = FetchType.LAZY)
-    private List<RoleEntity> userRoleEntities = new ArrayList<>();
+    @ManyToMany(mappedBy="userEntities", fetch = FetchType.LAZY)
+    private List<RoleEntity> roles = new ArrayList<>();
 
     public List<CustomerEntity> getCustomers() {
         return customers;
@@ -146,7 +138,7 @@ public class UserEntity extends BaseEntity {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
         for (RoleEntity role : roles) {
-            authorityList.add(new SimpleGrantedAuthority("ROLE_" + role.getName().toUpperCase()));
+            authorityList.add(new SimpleGrantedAuthority("ROLE_" + role.getCode().toUpperCase()));
         }
         return authorityList;
     }
