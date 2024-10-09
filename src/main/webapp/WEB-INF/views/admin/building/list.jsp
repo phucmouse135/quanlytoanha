@@ -179,13 +179,15 @@
                                                 <form:input type="text" class="form-control" id="managerPhone"
                                                             name="managerPhone" path="managerPhone"/>
                                             </div>
-                                            <div class="col-sm-4">
-                                                <label for="employees">Nhân viên phụ trách </label>
-                                                <form:select id="employees" name="employees" class="form-control" path="staffId">
-                                                    <form:option value="">Choose...</form:option>
-                                                    <form:options items="${listStaffs}"/>
-                                                </form:select>
-                                            </div>
+                                            <security:authorize access="hasAnyRole('MANAGER', 'ADMIN')">
+                                                <div class="col-sm-4">
+                                                    <label for="employees">Nhân viên phụ trách </label>
+                                                    <form:select id="employees" name="employees" class="form-control" path="staffId">
+                                                        <form:option value="">Choose...</form:option>
+                                                        <form:options items="${listStaffs}"/>
+                                                    </form:select>
+                                                </div>
+                                            </security:authorize>
                                         </div>
                                     </div>
                                     <div class="row">

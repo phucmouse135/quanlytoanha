@@ -8,6 +8,7 @@ import com.javaweb.enums.districtCode;
 import com.javaweb.model.dto.BuildingDTO;
 import com.javaweb.model.request.BuildingSearchRequest;
 import com.javaweb.model.response.BuildingSearchResponse;
+import com.javaweb.security.utils.SecurityUtils;
 import com.javaweb.service.BuildingService;
 import com.javaweb.service.impl.UserService;
 import com.javaweb.utils.DisplayTagUtils;
@@ -47,6 +48,9 @@ public class BuildingController {
                 buildingSearchBuilder = new BuildingSearchBuilder.Builder().build();
             } else {
                 buildingSearchBuilder = buildingSearchBuildingConverter.toBuildingSearchBuilder(buildingSearchRequest);
+            }
+            if(SecurityUtils.getAuthorities().contains("ROLE_STAFF")){
+                buildingSearchBuilder = new BuildingSearchBuilder.Builder().setStaffId(SecurityUtils.getPrincipal().getId()).build();
             }
             buildingSearchResponses = buildingService.findAll(buildingSearchBuilder);
 

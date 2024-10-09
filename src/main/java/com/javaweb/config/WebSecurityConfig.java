@@ -50,7 +50,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
-        .authorizeRequests()
+                .authorizeRequests()
+                //.antMatchers("/admin/building-edit").hasAnyRole("MANAGER")
                 .antMatchers("/admin/**").hasAnyRole("MANAGER","STAFF","ADMIN")
                 .antMatchers("/login", "/resource/**", "/trang-chu", "/api/**").permitAll()
                 .and()
@@ -61,7 +62,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .logout().logoutUrl("/logout").deleteCookies("JSESSIONID")
                 .and().exceptionHandling().accessDeniedPage("/access-denied").and()
                 .sessionManagement().maximumSessions(1).expiredUrl("/login?sessionTimeout");
-        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
     @Bean
