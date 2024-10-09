@@ -1,11 +1,18 @@
 package com.javaweb.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "user")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserEntity extends BaseEntity {
 
     private static final long serialVersionUID = -4988455421375043688L;
@@ -42,10 +49,7 @@ public class UserEntity extends BaseEntity {
     private String modifiedBy;
 
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "user_role",
-            joinColumns = @JoinColumn(name = "user_id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name = "role_id", nullable = false))
+    @ManyToMany(mappedBy = "userEntities", fetch = FetchType.LAZY)
     private List<RoleEntity> roles = new ArrayList<>();
 
     @ManyToMany(mappedBy = "staffs", fetch = FetchType.LAZY)
@@ -53,17 +57,6 @@ public class UserEntity extends BaseEntity {
 
     @ManyToMany(mappedBy = "staffCustomer", fetch = FetchType.LAZY)
     private List<CustomerEntity> customers = new ArrayList<>();
-
-
-
-
-
-
-//    @OneToMany(mappedBy="staffs", fetch = FetchType.LAZY)
-//    private List<AssignmentBuildingEntity> assignmentBuildingEntities = new ArrayList<>();
-//
-//    @OneToMany(mappedBy="users", fetch = FetchType.LAZY)
-//    private List<UserRoleEntity> userRoleEntities = new ArrayList<>();
 
     public List<CustomerEntity> getCustomers() {
         return customers;

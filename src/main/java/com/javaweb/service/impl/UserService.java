@@ -7,15 +7,26 @@ import com.javaweb.entity.UserEntity;
 import com.javaweb.exception.MyException;
 import com.javaweb.model.dto.PasswordDTO;
 import com.javaweb.model.dto.UserDTO;
+import com.javaweb.model.request.AuthenticationRequest;
 import com.javaweb.repository.RoleRepository;
 import com.javaweb.repository.UserRepository;
 import com.javaweb.service.IUserService;
+import com.javaweb.utils.JwtUtil;
+import lombok.Data;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +53,16 @@ public class UserService implements IUserService {
     @Autowired
     private UserConverter userConverter;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+
+    @Autowired
+    @Qualifier("customUserDetailService")
+    private UserDetailsService userDetailsService;
 
 
     @Override
@@ -107,6 +128,55 @@ public class UserService implements IUserService {
         return userRepository.findAll(pageable);
     }
 
+    @Override
+    public UserEntity register(AuthenticationRequest authenticationRequest) {
+        String username = authenticationRequest.getUsername();
+        if (userRepository.findOneByUserName(username) != null) {
+            throw new DataIntegrityViolationException("Username already exists");
+        }
+        List<RoleEntity> roles = new ArrayList<>();
+        String[] rolecodes = authenticationRequest.getRolecode().split(",");
+        for (String rolecode : rolecodes) {
+            RoleEntity role = roleRepository.findOneByCode(rolecode);
+            if (role != null) {
+                roles.add(role);
+            } else {
+                throw new IllegalArgumentException("Role not found: " + rolecode);
+            }
+        }
+        UserEntity newUser = UserEntity.builder()
+                .userName(username)
+                .password(passwordEncoder.encode(authenticationRequest.getPassword()))
+                .email(authenticationRequest.getEmail())
+                .fullName(authenticationRequest.getFullName())
+                .roles(roles)
+                .status(1)
+                .build();
+        for(RoleEntity role : roles) {
+           role.getUserEntities().add(newUser);
+        }
+        return userRepository.save(newUser);
+    }
+
+    @Override
+    public UserEntity loadUserByUsername(String userName) {
+        return userRepository.findOneByUserName(userName);
+    }
+
+    @Override
+    public String login(String userName, String password) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
+        if (userDetails == null) {
+            throw new UsernameNotFoundException("Invalid username or password");
+        }
+        if (!passwordEncoder.matches(password, userDetails.getPassword())) {
+            throw new BadCredentialsException("Invalid username or password");
+        }
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userName, password, userDetails.getAuthorities());
+        authenticationManager.authenticate(authenticationToken);
+        return jwtUtil.generateToken(userDetails);
+    }
+
 
     @Override
     public int getTotalItems(String searchValue) {
@@ -142,7 +212,7 @@ public class UserService implements IUserService {
     public UserDTO insert(UserDTO newUser) {
         RoleEntity role = roleRepository.findOneByCode(newUser.getRoleCode());
         UserEntity userEntity = userConverter.convertToEntity(newUser);
-        userEntity.setRoles(Stream.of(role).collect(Collectors.toList()));
+        userEntity.setRoles((ArrayList<RoleEntity>) Stream.of(role).collect(Collectors.toList()));
         userEntity.setStatus(1);
         userEntity.setPassword(passwordEncoder.encode(SystemConstant.PASSWORD_DEFAULT));
         return userConverter.convertToDto(userRepository.save(userEntity));
@@ -156,7 +226,7 @@ public class UserService implements IUserService {
         UserEntity userEntity = userConverter.convertToEntity(updateUser);
         userEntity.setUserName(oldUser.getUserName());
         userEntity.setStatus(oldUser.getStatus());
-        userEntity.setRoles(Stream.of(role).collect(Collectors.toList()));
+        userEntity.setRoles((ArrayList<RoleEntity>) Stream.of(role).collect(Collectors.toList()));
         userEntity.setPassword(oldUser.getPassword());
         return userConverter.convertToDto(userRepository.save(userEntity));
     }

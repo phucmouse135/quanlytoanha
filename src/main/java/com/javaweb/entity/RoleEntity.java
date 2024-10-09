@@ -1,11 +1,16 @@
 package com.javaweb.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "role")
+@Getter
+@Setter
 public class RoleEntity extends BaseEntity {
 
     private static final long serialVersionUID = -6525302831793188081L;
@@ -33,34 +38,11 @@ public class RoleEntity extends BaseEntity {
         this.id = id;
     }
 
-    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
-    private List<UserEntity> user = new ArrayList<>();
+    @ManyToMany
+    @JoinTable(name = "user_role",
+            joinColumns = @JoinColumn(name = "role_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "user_id", nullable = false))
+    private List<UserEntity> userEntities = new ArrayList<>();
 
-//    @OneToMany(mappedBy="roles",fetch = FetchType.LAZY)
-//    private List<UserRoleEntity> userRoleEntities = new ArrayList<>();
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public List<UserEntity> getUsers() {
-        return user;
-    }
-
-    public void setUsers(List<UserEntity> users) {
-        this.user = users;
-    }
 
 }
