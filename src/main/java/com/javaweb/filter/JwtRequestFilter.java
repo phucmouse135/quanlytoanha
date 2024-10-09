@@ -3,9 +3,11 @@ package com.javaweb.filter;
 import com.javaweb.service.impl.UserService;
 import com.javaweb.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -22,11 +24,16 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     private JwtUtil jwtUtil;
 
     @Autowired
-    private UserService userService;
+    @Qualifier("customUserDetailService")
+    private UserDetailsService userService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
+        if(isBypassToken(request)) {
+            return;
+        }
 
         final String authorizationHeader = request.getHeader("Authorization");
 
@@ -35,11 +42,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7);
-            username = jwtUtil.extractUsername(jwt);  // Lấy username từ JWT
+            username = jwtUtil.extractUsername(jwt);
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = (UserDetails) this.userService.loadUserByUsername(username);
+            UserDetails userDetails = userService.loadUserByUsername(username);
 
             if (jwtUtil.validateToken(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken =
@@ -48,5 +55,18 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    public boolean isBypassToken(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        String[] bypassUris = {"/api/users/sign_in",
+                "/api/users/register",
+                "localhost:8081/trang-chu"};
+        for(String bypassUri : bypassUris) {
+            if(uri.equals(bypassUri)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
