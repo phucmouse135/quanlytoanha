@@ -1,4 +1,4 @@
-package com.javaweb.filter;
+package com.javaweb.filters;
 
 import com.javaweb.service.impl.UserService;
 import com.javaweb.utils.JwtUtil;
@@ -59,9 +59,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     public boolean isBypassToken(HttpServletRequest request) {
         String uri = request.getRequestURI();
-        String[] bypassUris = {"/api/users/sign_in",
-                "/api/users/register",
-                "localhost:8081/trang-chu"};
+        String[] bypassUris = {
+                "/api/auth/sign_in",
+                "/api/auth/sign_up",
+                "/trang-chu"};
         for(String bypassUri : bypassUris) {
             if(uri.equals(bypassUri)) {
                 return true;
