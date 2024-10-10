@@ -66,6 +66,7 @@ public class HomeController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (auth != null) {
 			new SecurityContextLogoutHandler().logout(request, response, auth);
+            return new ModelAndView("redirect:/login?logout");
 		}
 		return new ModelAndView("redirect:/trang-chu");
 	}

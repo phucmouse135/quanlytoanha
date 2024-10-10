@@ -180,19 +180,22 @@
                                                             name="managerPhone" path="managerPhone"/>
                                             </div>
                                             <div class="col-sm-4">
-                                                <label for="employees">Nhân viên phụ trách </label>
-                                                <form:select id="employees" name="employees" class="form-control" path="staffId">
-                                                    <form:option value="">Choose...</form:option>
-                                                    <form:options items="${listStaffs}"/>
-                                                </form:select>
+                                                <security:authorize access="hasAnyRole('ADMIN','MANAGER')">
+                                                    <label for="employees">Nhân viên phụ trách </label>
+                                                    <form:select id="employees" name="employees" class="form-control"
+                                                                 path="staffId">
+                                                        <form:option value="">Choose...</form:option>
+                                                        <form:options items="${listStaffs}"/>
+                                                    </form:select>
+                                                </security:authorize>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="form-group">
                                             <div class="col-sm-5">
-                                                <label for="typeCode">Loại tòa nhà:       </label>
-                                                <form:checkboxes items="${listBuildingTypes}" path="typeCode" />
+                                                <label for="typeCode">Loại tòa nhà: </label>
+                                                <form:checkboxes items="${listBuildingTypes}" path="typeCode"/>
                                             </div>
                                         </div>
                                     </div>
@@ -207,9 +210,11 @@
                             <a href='/admin/building-edit' class="btn btn-success" title="ADD">
                                 <i class="bi bi-building-add"></i>ADD
                             </a>
-                            <a href="javascript:void(0)" class=" btn btn-primary" title="delete"  id="btn-delete-all">
-                                <i class="bi bi-building-dash"></i>DELETE
-                            </a>
+                            <security:authorize access="hasAnyRole('ADMIN' ,'MANAGER')">
+                                <a href="javascript:void(0)" class=" btn btn-primary" title="delete" id="btn-delete-all">
+                                    <i class="bi bi-building-dash"></i>DELETE
+                                </a>
+                            </security:authorize>
                         </div>
                     </div>
                 </div>
@@ -218,7 +223,8 @@
                 Danh sách tòa nhà
             </div>
             <div>
-                <display:table name="buildingSearchResponses" requestURI="/admin/building-list" pagesize="5" id="building">
+                <display:table name="buildingSearchResponses" requestURI="/admin/building-list" pagesize="5"
+                               id="building">
                     <display:column title="Select">
                         <input type="checkbox" name="checkList" value="${building.id}" class="ace">
                         <span class="lbl"></span>
@@ -235,15 +241,19 @@
                     <display:column property="brokerageFee" title="Phí môi giới" sortable="true"/>
                     <display:column title="Thao tác">
                         <div class="hidden-sm hidden-xs action-buttons">
-                            <a class="blue" href="javascript:void(0)" onclick="assignmentBuilding(${building.id})">
-                                <i class="ace-icon fa fa-user bigger-130"></i>
-                            </a>
+                            <security:authorize access="hasAnyRole('ADMIN' ,'MANAGER')">
+                                <a class="blue" href="javascript:void(0)" onclick="assignmentBuilding(${building.id})">
+                                    <i class="ace-icon fa fa-user bigger-130"></i>
+                                </a>
+                            </security:authorize>
                             <a class="green" href="/admin/building-edit?id=${building.id}">
                                 <i class="ace-icon fa fa-pencil bigger-130"></i>
                             </a>
-                            <a class="red" href="javascript:void(0)" onclick="deleteBuilding(${building.id})">
-                                <i class="ace-icon fa fa-trash-o bigger-130"></i>
-                            </a>
+                            <security:authorize access="hasAnyRole('ADMIN' ,'MANAGER')">
+                                <a class="red" href="javascript:void(0)" onclick="deleteBuilding(${building.id})">
+                                    <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                                </a>
+                            </security:authorize>
                         </div>
                     </display:column>
                     <display:setProperty name="paging.banner.placement" value="bottom"/>
@@ -300,7 +310,7 @@
             type: 'GET',
             contentType: 'application/json',
             dataType: 'json',
-            success: function (data){
+            success: function (data) {
                 var html = '';
                 data.forEach(function (item) {
                     html += '<tr>';
@@ -346,10 +356,12 @@
         e.preventDefault();
         $('#listForm').submit();
     })
+
     function deleteBuilding(id) {
         var list = [id];
         deleteBuildings(list);
     }
+
     $('#btn-delete-all').click(function () {
         var buildingId = [];
         $('input[name="checkList"]:checked').each(function () {
@@ -366,7 +378,7 @@
                 data: JSON.stringify(data),
                 contentType: 'application/json',
                 dataType: 'json',
-                success: function (data){
+                success: function (data) {
                     alert('Building deleted successfully');
                     location.reload();
                 },
